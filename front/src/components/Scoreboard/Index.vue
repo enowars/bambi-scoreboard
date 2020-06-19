@@ -103,6 +103,7 @@ import axios from 'axios';
 export default {
     props: {
         updateRound: Function,
+        updateRoundTime: Function,
         updateRoundStart: Function,
         timer: Number,
     },
@@ -138,12 +139,17 @@ export default {
 
         const {
             CurrentRound: round,
-            StartTime: round_start,
+            StartTimeEpoch: round_start,
+            EndTimeEpoch: round_end,
             Services: tasks,
             Teams: teams,
         } = r.data;
 
-        this.updateRoundStart(round_start);
+        this.updateRoundStart(round_end);
+        this.updateRoundTime(round_end - round_start);
+        console.log(this.roundTime);
+        console.log(round_end);
+        console.log(new Date().getTime() / 1000);
         this.updateRound(round);
         this.tasks = tasks.map(task => new Task(task)).sort(Task.comp);
         this.teams = teams
@@ -158,11 +164,13 @@ export default {
                 r = await axios.get(`${serverUrl}/api/scoreboard/live`);
                 const {
                     CurrentRound: round,
-                    StartTime: round_start,
+                    StartTimeEpoch: round_start,
+                    EndTimeEpoch: round_end,
                     Services: tasks,
                     Teams: teams,
                 } = r.data;
-                this.updateRoundStart(round_start);
+                this.updateRoundStart(round_end);
+                this.updateRoundTime(round_end - round_start);
                 this.updateRound(round);
                 teams.forEach(incoming_team => {
                     this.teams.forEach(team => {

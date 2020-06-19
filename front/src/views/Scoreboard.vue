@@ -11,6 +11,7 @@
             <statuses />
             <scoreboard
                 :updateRound="updateRound"
+                :updateRoundTime="updateRoundTime"
                 :updateRoundStart="updateRoundStart"
                 :timer="timer"
             />
@@ -50,15 +51,16 @@ export default {
     },
 
     created: async function() {
-        const r = await axios.get(`${serverUrl}/api/config`);
-        const { round_time } = r.data;
-        this.roundTime = round_time;
         this.timer = setInterval(this.tick, 500);
     },
 
     methods: {
         updateRound: function(round) {
             this.round = round;
+        },
+
+        updateRoundTime: function(roundTime) {
+            this.roundTime = roundTime;
         },
 
         updateRoundStart: function(roundStart) {
