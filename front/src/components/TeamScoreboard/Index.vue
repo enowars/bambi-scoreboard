@@ -68,6 +68,8 @@
 </template>
 
 <script>
+import Team from '@/models/team';
+import TeamTask from '@/models/teamTask';
 import { serverUrl } from '@/config';
 
 export default {
@@ -90,71 +92,35 @@ export default {
     created: async function() {
         this.teamId = this.$route.params.id;
         try {
-            const { data: teams } = await this.$http.get(
-                `${serverUrl}/api/teams`
+            const { data: scoreboard } = await this.$http.get(
+                `${serverUrl}/api/scoreboard`
             );
-            console.log(teams);
-            const { data: tasks } = await this.$http.get(
-                `${serverUrl}/api/tasks`
-            );
-            console.log(tasks);
             let { data: states } = await this.$http.get(
                 `${serverUrl}/api/teams/${this.teamId}`
             );
-            console.log(states);
-            this.team = teams.filter(({ id }) => id == this.teamId)[0];
-            this.tasks = tasks.sort(({ id: idA }, { id: idB }) => idA - idB);
+            this.team = new Team(scoreboard.Teams.filter(({ TeamId }) => TeamId == this.teamId)[0], []);
+            this.tasks = scoreboard.Services.sort(({ ServiceId: idA }, { ServiceId: idB }) => idA - idB).map((s) => ({
+                name: s.ServiceName
+            }));
 
             this.round = states.reduce(
-                (acc, { round }) => Math.max(acc, round),
+                (acc, { Round }) => Math.max(acc, Round),
                 0
             );
 
             this.updateRound(this.round);
 
-            states = states.map(x => ({
-                id: Number(x.id),
-                round: Number(x.round),
-                task_id: Number(x.task_id),
-                team_id: Number(x.team_id),
-                status: x.status,
-                sla: Number(x.sla),
-                attack: Number(x.attack),
-                defense: Number(x.defense),
-                message: x.message,
+            states = states.map((s) => ({
+                round: s.Round,
+                score: s.TotalPoints,
+                tasks: s.ServiceDetails.map((s) => new TeamTask(s)).sort(({ ServiceId: i1 }, { ServiceId: i2 }) => {
+                    return i2 - i1;
+                }),
             }));
 
-            states = states.sort(({ round: r1 }, { round: r2 }) => {
+            this.states = states.sort(({ round: r1 }, { round: r2 }) => {
                 return r2 - r1;
             });
-
-            console.log(states);
-
-            this.by_task = {};
-            for (const state of states) {
-                let key = state.task_id - 1;
-                if (!this.by_task[key]) {
-                    this.by_task[key] = [];
-                }
-                this.by_task[key].push(state);
-            }
-            this.by_task = Object.values(this.by_task);
-            let row_count = Math.min(...this.by_task.map(x => x.length));
-
-            this.states = [];
-            for (let i = 0; i < row_count; i += 1) {
-                this.states.push({
-                    round: i + 1,
-                    tasks: this.by_task.map(x => x[i]),
-                    score: this.by_task
-                        .map(x => x[i])
-                        .reduce(
-                            (acc, { sla, attack, defense }) =>
-                                acc + sla + attack + defense,
-                            0
-                        ),
-                });
-            }
         } catch (e) {
             console.log(e);
             this.error = "Can't connect to server";

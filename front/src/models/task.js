@@ -1,7 +1,10 @@
 class Task {
-    constructor({ name, id }) {
+    constructor({ ServiceName: name, ServiceId: id, MaxStores: stores, FirstBloods: firstBloods }) {
         this.name = name;
         this.id = id;
+        this.stores = stores;
+        this.firstBloods = firstBloods;
+        console.log(this.firstBloods);
     }
 
     static comp(A, B) {

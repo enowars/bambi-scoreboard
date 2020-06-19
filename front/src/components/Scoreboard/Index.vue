@@ -136,13 +136,12 @@ export default {
             }
         }
 
-        console.log(r);
         const {
-            state: { round_start, round, team_tasks: teamTasks },
-            tasks,
-            teams,
+            CurrentRound: round,
+            StartTime: round_start,
+            Services: tasks,
+            Teams: teams,
         } = r.data;
-        console.log('received scoreboard: ' + r.data);
 
         this.updateRoundStart(round_start);
         this.updateRound(round);
@@ -150,25 +149,25 @@ export default {
         this.teams = teams
             .map(
                 team =>
-                    new Team({
-                        ...team,
-                        tasks,
-                        teamTasks,
-                    })
+                    new Team(team, this.tasks)
             )
             .sort(Team.comp);
-        console.log('created!');
 
         while (this.teams) {
             try {
                 r = await axios.get(`${serverUrl}/api/scoreboard/live`);
-                console.log('received scoreboard: ');
-                console.log(r.data);
-                const { round, team_tasks: teamTasks, round_start } = r.data;
+                const {
+                    CurrentRound: round,
+                    StartTime: round_start,
+                    Services: tasks,
+                    Teams: teams,
+                } = r.data;
                 this.updateRoundStart(round_start);
                 this.updateRound(round);
-                this.teams.forEach(team => {
-                    team.update(teamTasks);
+                teams.forEach(incoming_team => {
+                    this.teams.forEach(team => {
+                        team.update(incoming_team);
+                    });
                 });
                 this.teams = this.teams.sort(Team.comp);
             } catch (err) {

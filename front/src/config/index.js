@@ -8,14 +8,15 @@ if (process.env.NODE_ENV === 'development') {
 
 const serverUrl = url;
 
-const statuses = [101, 103, 104, 110];
+const statuses = [101, 102, 103, 104, 110, 111];
 
 const statusesNames = {
     101: 'UP',
-    //102: 'CORRUPT',
+    102: 'RECOVERING',
     103: 'MUMBLE',
     104: 'DOWN',
     110: 'CHECK FAILED',
+    111: 'INACTIVE',
     '-1': 'OFFLINE',
 };
 

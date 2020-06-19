@@ -1,43 +1,42 @@
 import TeamTask from '@/models/teamTask';
 
 class Team {
-    constructor({ name, ip, id, teamTasks, tasks, highlighted }) {
+    constructor(obj, taskModels) {
+        const {
+            Name: name,
+            TeamId: id,
+        } = obj;
         this.name = name;
-        this.ip = ip;
         this.id = id;
-        this.highlighted = highlighted;
-        this.taskModels = tasks;
-        this.update(teamTasks);
+        this.ip = "team" + id + ".enowars.com";
+        this.taskModels = taskModels;
+        this.update(obj);
     }
 
-    update(teamTasks) {
-        this.tasks = teamTasks
-            .filter(({ team_id: teamId }) => teamId === this.id)
-            .map(teamTask => new TeamTask(teamTask));
-        this.score = this.tasks.reduce(
-            (acc, { sla, attack, defense }) => acc + sla + attack + defense,
-            0
-        );
+    update(team) {
+        if (team.TeamId != this.id) return;
+        this.score = team.TotalPoints;
+        this.attack = team.AttackPoints;
+        this.defense = team.LostDefensePoints;
+        this.sla = team.ServiceLevelAgreementPoints;
+
+        this.tasks = team.ServiceDetails.map(teamTask => new TeamTask(teamTask));
+
         let taskIds = this.tasks.map(x => x.taskId);
         for (let task of this.taskModels) {
             if (!taskIds.includes(task.id)) {
-                console.log('Creating new task for ' + task.id);
                 this.tasks.push(
                     new TeamTask({
-                        id: 0,
-                        task_id: task.id,
-                        team_id: this.id,
-                        sla: 0,
-                        attack: 0,
-                        defense: 0,
+                        ServiceId: task.id,
+                        ServiceLevelAgreementPoints: 0,
+                        AttackPoints: 0,
+                        LostDefensePoints: 0,
                         message: '',
-                        status: 101,
                     })
                 );
             }
         }
         this.tasks.sort(TeamTask.comp);
-        console.log(this.tasks);
     }
 
     static comp(A, B) {

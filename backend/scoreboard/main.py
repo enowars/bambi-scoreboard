@@ -1,12 +1,54 @@
 import asyncio
 import datetime
+import json
 import time
 from typing import Any, Dict, List, Optional
 
 from fastapi import FastAPI
 from pydantic import BaseModel
+from watchgod import awatch, Change
 
 app = FastAPI()
+
+
+class ServiceDetail(BaseModel):
+    ServiceId: int
+    AttackPoints: float
+    LostDefensePoints: float
+    ServiceLevelAgreementPoints: float
+    ServiceStatus: str
+
+
+class ScoreboardTeam(BaseModel):
+    Name: str
+    TeamId: int
+    TotalPoints: float
+    AttackPoints: float
+    LostDefensePoints: float
+    ServiceLevelAgreementPoints: float
+    ServiceDetails: List[ServiceDetail]
+
+
+class FirstBlood(BaseModel):
+    TeamId: int
+    Timestamp: str
+    RoundId: int
+    StoreDescription: Optional[str]
+    StoreIndex: int
+
+
+class ScoreboardService(BaseModel):
+    ServiceId: int
+    ServiceName: str
+    MaxStores: int
+    FirstBloods: List[FirstBlood]
+
+
+class JsonScoreboard(BaseModel):
+    CurrentRound: int
+    StartTime: int
+    Services: List[ScoreboardService]
+    Teams: List[ScoreboardTeam]
 
 
 class TeamTask(BaseModel):
@@ -19,6 +61,15 @@ class TeamTask(BaseModel):
     attack: float
     defense: float
     message: str
+
+
+class TeamState(BaseModel):
+    Round: int
+    TotalPoints: float
+    AttackPoints: float
+    LostDefensePoints: float
+    ServiceLevelAgreementPoints: float
+    ServiceDetails: List[ServiceDetail]
 
 
 class GameState(BaseModel):
@@ -67,7 +118,7 @@ class Scoreboard(BaseModel):
     config: GlobalConfig
 
 
-async def construct_scoreboard():
+async def construct_scoreboard_old():
     return {
         "state": {
             "round_start": int(time.time()) - 30,
@@ -208,6 +259,12 @@ async def construct_scoreboard():
     }
 
 
+def construct_scoreboard() -> JsonScoreboard:
+    obj = json.load(open("scoreboard/test.json", "r"))
+    sb = JsonScoreboard(**obj)
+    return sb
+
+
 @app.get("/api/config", response_model=GlobalConfig)
 def config() -> Dict[str, Any]:
     return {
@@ -219,42 +276,100 @@ def config() -> Dict[str, Any]:
     }
 
 
-@app.get("/api/scoreboard", response_model=Scoreboard)
+@app.get("/api/scoreboard", response_model=JsonScoreboard)
 async def scoreboard():
-    return await construct_scoreboard()
+    return construct_scoreboard()
 
 
-@app.get("/api/scoreboard/live", response_model=GameState)
+@app.get("/api/scoreboard/live", response_model=JsonScoreboard)
 async def scoreboard_live():
+    sb = construct_scoreboard()
+    sb.StartTime = int(time.time())
     await asyncio.sleep(5)
-    sb = await construct_scoreboard()
-    return sb["state"]
+    return sb
 
 
-@app.get("/api/tasks", response_model=List[Task])
-async def get_tasks():
-    sb = await construct_scoreboard()
-    return sb["tasks"]
-
-
-@app.get("/api/teams", response_model=List[Team])
-async def get_teams():
-    sb = await construct_scoreboard()
-    return sb["teams"]
-
-
-@app.get("/api/teams/{team_id}", response_model=List[TeamTask])
+@app.get("/api/teams/{team_id}", response_model=List[TeamState])
 async def get_team(team_id: int):
-    sb = await construct_scoreboard()
-    base_task = {
-        "id": 1239,
-        "round": 1,
-        "task_id": 3,
-        "team_id": 1,
-        "status": 101,
-        "sla": 51.5,
-        "attack": 13.37,
-        "defense": 5.0012378182,
-        "message": "Works for me!",
-    }
-    return sb["state"]["team_tasks"]
+    return [{
+        "Round": 1,
+        "TotalPoints": 12345,
+        "AttackPoints": 100,
+        "LostDefensePoints": 2000,
+        "ServiceLevelAgreementPoints": 14245,
+        "ServiceDetails": [
+            {
+                "ServiceId": 1,
+                "AttackPoints": 100,
+                "LostDefensePoints": 2000,
+                "ServiceLevelAgreementPoints": 14245,
+                "ServiceStatus": "INTERNAL_ERROR"
+            },
+            {
+                "ServiceId": 2,
+                "AttackPoints": 100,
+                "LostDefensePoints": 2000,
+                "ServiceLevelAgreementPoints": 14245,
+                "ServiceStatus": "OK"
+            },
+            {
+                "ServiceId": 3,
+                "AttackPoints": 100,
+                "LostDefensePoints": 2000,
+                "ServiceLevelAgreementPoints": 14245,
+                "ServiceStatus": "RECOVERING"
+            }
+        ]
+    },{
+        "Round": 2,
+        "Score": 123,
+        "TotalPoints": 12445,
+        "AttackPoints": 200,
+        "LostDefensePoints": 2000,
+        "ServiceLevelAgreementPoints": 14245,
+        "ServiceDetails": [
+            {
+                "ServiceId": 1,
+                "AttackPoints": 200,
+                "LostDefensePoints": 2000,
+                "ServiceLevelAgreementPoints": 14245,
+                "ServiceStatus": "MUMBLE"
+            },
+            {
+                "ServiceId": 3,
+                "AttackPoints": 100,
+                "LostDefensePoints": 2000,
+                "ServiceLevelAgreementPoints": 14245,
+                "ServiceStatus": "OFFLINE"
+            },
+            {
+                "ServiceId": 2,
+                "AttackPoints": 100,
+                "LostDefensePoints": 2000,
+                "ServiceLevelAgreementPoints": 14245,
+                "ServiceStatus": "INACTIVE"
+            }
+        ]
+    }]
+
+
+@app.on_event("startup")
+async def startup() -> None:
+    asyncio.create_task(create_watch())
+
+
+async def create_watch():
+    async for changes in awatch("../data"):
+        for c in changes:
+            if c[0] != Change.added:
+                continue
+            await parse_scoreboard(c[1])
+
+
+async def parse_scoreboard(file_):
+    try:
+        obj = json.load(open(file_, "r"))
+        sb = JsonScoreboard(**obj)
+    except json.JSONDecodeError as e:
+        print(f"Failed to parse scoreboard: {file_}, {str(e)}")
+    print(sb)

@@ -27,7 +27,11 @@ body {
 }
 
 .status-110 {
-    background-color: #aaaaaa;
+    background-color: #999999;
+}
+
+.status-111 {
+    background-color: #eeeeee;
 }
 
 .status--1 {
