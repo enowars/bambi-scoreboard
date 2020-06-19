@@ -74,7 +74,6 @@ async def current_round() -> Optional[int]:
 
 async def get_scoreboard(round: Optional[int] = None) -> Optional[bytes]:
     round = round or await current_round()
-    print(f"Getting scoreboard for round {round}")
     if not round:
         return None
 
@@ -182,6 +181,14 @@ async def get_team(team_id: int) -> Response:
 
 @app.on_event("startup")
 async def startup() -> None:
+    base_path = os.path.join(DATA_DIR, "scoreboard.json")
+    await parse_scoreboard(base_path)
+    r = await current_round()
+    if r is not None:
+        for i in range(0, r + 1):
+            sb_path = os.path.join(DATA_DIR, f"scoreboard{i}.json")
+            await parse_scoreboard(sb_path)
+
     asyncio.create_task(create_watch())
 
 
@@ -210,7 +217,7 @@ async def parse_scoreboard(file_: str) -> None:
 
         for t in sb.Teams:
             await redis.set(f"team_exists_${t.TeamId}", True)
-
+    except FileNotFoundError as e:
+        print(f"Failed to load scoreboard: {file_}, {str(e)}")
     except json.JSONDecodeError as e:
         print(f"Failed to parse scoreboard: {file_}, {str(e)}")
-    print(sb)
