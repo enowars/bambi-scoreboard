@@ -85,7 +85,9 @@ async def get_scoreboard(round: Optional[int] = None) -> Optional[bytes]:
     return entry
 
 
-def get_team_state_from_scoreoard(scoreboard: bytes, team_id: int) -> Optional[Dict[str, Any]]:
+def get_team_state_from_scoreoard(
+    scoreboard: bytes, team_id: int
+) -> Optional[Dict[str, Any]]:
     sb = json.loads(scoreboard.decode())
 
     for t in sb["Teams"]:
@@ -97,13 +99,15 @@ def get_team_state_from_scoreoard(scoreboard: bytes, team_id: int) -> Optional[D
             "AttackPoints": t["AttackPoints"],
             "LostDefensePoints": t["LostDefensePoints"],
             "ServiceLevelAgreementPoints": t["ServiceLevelAgreementPoints"],
-            "ServiceDetails": t["ServiceDetails"]
+            "ServiceDetails": t["ServiceDetails"],
         }
 
     return None
 
 
-async def build_team_scoreboard(team_id: int, base: List[Dict[str, Any]], start: int, end: int) -> Optional[bytes]:
+async def build_team_scoreboard(
+    team_id: int, base: List[Dict[str, Any]], start: int, end: int
+) -> Optional[bytes]:
     entry: Optional[bytes] = None
     for i in range(start + 1, end + 1):
         sb = await get_scoreboard(i)
@@ -133,7 +137,9 @@ async def get_team_scoreboard(team_id: int) -> Optional[bytes]:
     for i in range(round)[::-1]:
         entry = await redis.get(f"team_{team_id}_round_{i}")
         if entry:
-            return await build_team_scoreboard(team_id, json.loads(entry.decode()), i, round)
+            return await build_team_scoreboard(
+                team_id, json.loads(entry.decode()), i, round
+            )
 
     return await build_team_scoreboard(team_id, [], 0, round)
 
