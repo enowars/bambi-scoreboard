@@ -65,101 +65,113 @@ class TeamState(BaseModel):
     ServiceDetails: List[ServiceDetail]
 
 
-async def get_scoreboard(round: Optional[int] = None) -> bytes:
-    if not round:
-        r = await redis.get("max_round")
-        if not r:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="CTF not yet started"
-            )
+async def current_round() -> Optional[int]:
+    r = await redis.get("max_round")
+    if not r:
+        return None
+    return int(r.decode())
 
-        round = int(r.decode())
+
+async def get_scoreboard(round: Optional[int] = None) -> Optional[bytes]:
+    round = round or await current_round()
+    print(f"Getting scoreboard for round {round}")
+    if not round:
+        return None
 
     entry = await redis.get(f"sb_{round}")
     if not entry:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="CTF not yet started"
-        )
+        return None
 
     return entry
 
 
+def get_team_state_from_scoreoard(scoreboard: bytes, team_id: int) -> Optional[Dict[str, Any]]:
+    sb = json.loads(scoreboard.decode())
+
+    for t in sb["Teams"]:
+        if t["TeamId"] != team_id:
+            continue
+        return {
+            "Round": sb["CurrentRound"],
+            "TotalPoints": t["TotalPoints"],
+            "AttackPoints": t["AttackPoints"],
+            "LostDefensePoints": t["LostDefensePoints"],
+            "ServiceLevelAgreementPoints": t["ServiceLevelAgreementPoints"],
+            "ServiceDetails": t["ServiceDetails"]
+        }
+
+    return None
+
+
+async def build_team_scoreboard(team_id: int, base: List[Dict[str, Any]], start: int, end: int) -> Optional[bytes]:
+    entry: Optional[bytes] = None
+    for i in range(start + 1, end + 1):
+        sb = await get_scoreboard(i)
+        if not sb:
+            continue
+        state = get_team_state_from_scoreoard(sb, team_id)
+        if not state:
+            continue
+        base.append(state)
+        print(base)
+        entry = json.dumps(base).encode()
+        await redis.set(f"team_{team_id}_round_{i}", entry)
+    return entry
+
+
+async def get_team_scoreboard(team_id: int) -> Optional[bytes]:
+    round = await current_round()
+    if not round:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="CTF not yet started"
+        )
+
+    entry = await redis.get(f"team_{team_id}_round_{round}")
+    if entry:
+        return entry
+
+    for i in range(round)[::-1]:
+        entry = await redis.get(f"team_{team_id}_round_{i}")
+        if entry:
+            return await build_team_scoreboard(team_id, json.loads(entry.decode()), i, round)
+
+    return await build_team_scoreboard(team_id, [], 0, round)
+
+
 @app.get("/api/scoreboard")
 async def scoreboard() -> Response:
-    return Response(content=await get_scoreboard(), media_type="text/json")
+    sb = await get_scoreboard()
+    if not sb:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="CTF not yet started"
+        )
+    return Response(content=sb, media_type="application/json")
 
 
 @app.get("/api/scoreboard/live")
 async def scoreboard_live() -> Response:
     await asyncio.sleep(5)
-    return Response(content=await get_scoreboard(), media_type="text/json")
+    sb = await get_scoreboard()
+    if not sb:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="CTF not yet started"
+        )
+    return Response(content=sb, media_type="application/json")
 
 
 @app.get("/api/teams/{team_id}", response_model=List[TeamState])
-async def get_team(team_id: int) -> List[Dict[str, Any]]:
-    return [
-        {
-            "Round": 1,
-            "TotalPoints": 12345,
-            "AttackPoints": 100,
-            "LostDefensePoints": 2000,
-            "ServiceLevelAgreementPoints": 14245,
-            "ServiceDetails": [
-                {
-                    "ServiceId": 1,
-                    "AttackPoints": 100,
-                    "LostDefensePoints": 2000,
-                    "ServiceLevelAgreementPoints": 14245,
-                    "ServiceStatus": "INTERNAL_ERROR",
-                },
-                {
-                    "ServiceId": 2,
-                    "AttackPoints": 100,
-                    "LostDefensePoints": 2000,
-                    "ServiceLevelAgreementPoints": 14245,
-                    "ServiceStatus": "OK",
-                },
-                {
-                    "ServiceId": 3,
-                    "AttackPoints": 100,
-                    "LostDefensePoints": 2000,
-                    "ServiceLevelAgreementPoints": 14245,
-                    "ServiceStatus": "RECOVERING",
-                },
-            ],
-        },
-        {
-            "Round": 2,
-            "Score": 123,
-            "TotalPoints": 12445,
-            "AttackPoints": 200,
-            "LostDefensePoints": 2000,
-            "ServiceLevelAgreementPoints": 14245,
-            "ServiceDetails": [
-                {
-                    "ServiceId": 1,
-                    "AttackPoints": 200,
-                    "LostDefensePoints": 2000,
-                    "ServiceLevelAgreementPoints": 14245,
-                    "ServiceStatus": "MUMBLE",
-                },
-                {
-                    "ServiceId": 3,
-                    "AttackPoints": 100,
-                    "LostDefensePoints": 2000,
-                    "ServiceLevelAgreementPoints": 14245,
-                    "ServiceStatus": "OFFLINE",
-                },
-                {
-                    "ServiceId": 2,
-                    "AttackPoints": 100,
-                    "LostDefensePoints": 2000,
-                    "ServiceLevelAgreementPoints": 14245,
-                    "ServiceStatus": "INACTIVE",
-                },
-            ],
-        },
-    ]
+async def get_team(team_id: int) -> Response:
+    if not await redis.get(f"team_exists_${team_id}"):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="No team details found"
+        )
+
+    sb = await get_team_scoreboard(team_id)
+    if not sb:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="No team details found"
+        )
+    return Response(content=sb, media_type="application/json")
 
 
 @app.on_event("startup")
@@ -189,6 +201,10 @@ async def parse_scoreboard(file_: str) -> None:
         print(f"previous: max_round: {entry}")
         if not entry or int(entry.decode()) < sb.CurrentRound:
             await redis.set("max_round", sb.CurrentRound)
+
+        for t in sb.Teams:
+            await redis.set(f"team_exists_${t.TeamId}", True)
+
     except json.JSONDecodeError as e:
         print(f"Failed to parse scoreboard: {file_}, {str(e)}")
     print(sb)
