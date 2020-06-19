@@ -147,9 +147,6 @@ export default {
 
         this.updateRoundStart(round_end);
         this.updateRoundTime(round_end - round_start);
-        console.log(this.roundTime);
-        console.log(round_end);
-        console.log(new Date().getTime() / 1000);
         this.updateRound(round);
         this.tasks = tasks.map(task => new Task(task)).sort(Task.comp);
         this.teams = teams
