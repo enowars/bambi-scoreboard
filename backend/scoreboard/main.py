@@ -196,8 +196,7 @@ async def create_watch() -> None:
     async for changes in awatch(DATA_DIR):
         for c in changes:
             if c[0] == Change.added or c[0] == Change.modified:
-                continue
-            await parse_scoreboard(c[1])
+                await parse_scoreboard(c[1])
 
 
 async def parse_scoreboard(file_: str) -> None:
