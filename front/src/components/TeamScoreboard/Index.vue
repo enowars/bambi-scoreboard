@@ -98,9 +98,16 @@ export default {
             let { data: states } = await this.$http.get(
                 `${serverUrl}/api/teams/${this.teamId}`
             );
-            this.team = new Team(scoreboard.Teams.filter(({ TeamId }) => TeamId == this.teamId)[0], []);
-            this.tasks = scoreboard.Services.sort(({ ServiceId: idA }, { ServiceId: idB }) => idA - idB).map((s) => ({
-                name: s.ServiceName
+            this.team = new Team(
+                scoreboard.Teams.filter(
+                    ({ TeamId }) => TeamId == this.teamId
+                )[0],
+                []
+            );
+            this.tasks = scoreboard.Services.sort(
+                ({ ServiceId: idA }, { ServiceId: idB }) => idA - idB
+            ).map(s => ({
+                name: s.ServiceName,
             }));
 
             this.round = states.reduce(
@@ -110,19 +117,20 @@ export default {
 
             this.updateRound(this.round);
 
-            states = states.map((s) => ({
+            states = states.map(s => ({
                 round: s.Round,
                 score: s.TotalPoints,
-                tasks: s.ServiceDetails.map((s) => new TeamTask(s)).sort(({ ServiceId: i1 }, { ServiceId: i2 }) => {
-                    return i2 - i1;
-                }),
+                tasks: s.ServiceDetails.map(s => new TeamTask(s)).sort(
+                    ({ ServiceId: i1 }, { ServiceId: i2 }) => {
+                        return i2 - i1;
+                    }
+                ),
             }));
 
             this.states = states.sort(({ round: r1 }, { round: r2 }) => {
                 return r2 - r1;
             });
         } catch (e) {
-            console.log(e);
             this.error = "Can't connect to server";
         }
     },

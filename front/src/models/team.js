@@ -2,13 +2,10 @@ import TeamTask from '@/models/teamTask';
 
 class Team {
     constructor(obj, taskModels) {
-        const {
-            Name: name,
-            TeamId: id,
-        } = obj;
+        const { Name: name, TeamId: id } = obj;
         this.name = name;
         this.id = id;
-        this.ip = "team" + id + ".enowars.com";
+        this.ip = 'team' + id + '.enowars.com';
         this.taskModels = taskModels;
         this.update(obj);
     }
@@ -20,7 +17,9 @@ class Team {
         this.defense = team.LostDefensePoints;
         this.sla = team.ServiceLevelAgreementPoints;
 
-        this.tasks = team.ServiceDetails.map(teamTask => new TeamTask(teamTask));
+        this.tasks = team.ServiceDetails.map(
+            teamTask => new TeamTask(teamTask)
+        );
 
         let taskIds = this.tasks.map(x => x.taskId);
         for (let task of this.taskModels) {

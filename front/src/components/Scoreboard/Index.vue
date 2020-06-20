@@ -132,7 +132,6 @@ export default {
                 r = await axios.get(`${serverUrl}/api/scoreboard`);
                 break;
             } catch (err) {
-                console.log('Failed to fetch scoreboard: ' + err);
                 await new Promise(r => setTimeout(r, 2000));
             }
         }
@@ -150,10 +149,7 @@ export default {
         this.updateRound(round);
         this.tasks = tasks.map(task => new Task(task)).sort(Task.comp);
         this.teams = teams
-            .map(
-                team =>
-                    new Team(team, this.tasks)
-            )
+            .map(team => new Team(team, this.tasks))
             .sort(Team.comp);
 
         while (this.teams) {
@@ -163,7 +159,6 @@ export default {
                     CurrentRound: round,
                     StartTimeEpoch: round_start,
                     EndTimeEpoch: round_end,
-                    Services: tasks,
                     Teams: teams,
                 } = r.data;
                 this.updateRoundStart(round_end);
@@ -176,7 +171,6 @@ export default {
                 });
                 this.teams = this.teams.sort(Team.comp);
             } catch (err) {
-                console.log('Failed to fetch scoreboard: ' + err);
                 await new Promise(r => setTimeout(r, 2000));
             }
         }

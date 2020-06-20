@@ -7,19 +7,20 @@ class TeamTask {
         LostDefensePoints: defense,
         Message: message,
     }) {
-        this.id = taskId + sla*100 + attack*10000 + defense*1000000;
+        this.id = taskId + sla * 100 + attack * 10000 + defense * 1000000;
         this.taskId = taskId;
-        if (status === "INACTIVE") {
+        if (status === 'INACTIVE') {
             this.status = 111;
-        } else if (status === "OK") {
+        } else if (status === 'OK') {
             this.status = 101;
-        } else if (status === "RECOVERING") {
+        } else if (status === 'RECOVERING') {
             this.status = 102;
-        } else if (status === "MUMBLE") {
+        } else if (status === 'MUMBLE') {
             this.status = 103;
-        } else if (status === "OFFLINE") {
+        } else if (status === 'OFFLINE') {
             this.status = 104;
-        } else { // INTERNAL_ERROR
+        } else {
+            // INTERNAL_ERROR
             this.status = 110;
         }
         this.sla = sla;
