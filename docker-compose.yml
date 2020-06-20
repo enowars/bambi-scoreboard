@@ -3,8 +3,6 @@ version: '2'
 services:
   scoreboard:
     build: backend
-    ports:
-      - 8000:8000
     environment:
       - REDIS_HOST=redis
       - DATA_DIR=/data
