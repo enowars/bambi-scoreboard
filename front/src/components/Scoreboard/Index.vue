@@ -6,13 +6,8 @@
             <div class="team">team</div>
             <div class="score">score</div>
             <div class="service-name">
-                <div :key="name" class="service-cell" v-for="{ name, stores, firsBloods } in tasks">
+                <div :key="name" class="service-cell" v-for="{ name } in tasks">
                     {{ name }}
-                    <div class="first-bloods">
-                        <div :key="StoreIndex" class="firstblood-cell" v-for="{ TeamName } in firsBloods}>
-                        {{ stores }}
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
