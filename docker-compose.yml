@@ -12,16 +12,16 @@ services:
         soft: 20000
         hard: 40000
   scoreboard_watch:
-    build:
-      context: backend
-      dockerfile: Dockerfile.watch
+    build: backend
     environment:
       - REDIS_HOST=redis
       - DATA_DIR=/data
+      - PYTHONUNBUFFERED=1
     volumes:
-      - ./services/data:/data
+      - /services/data:/data
     depends_on:
       - redis
+    entrypoint: ["python", "-m", "scoreboard.watch"]
   redis:
     image: redis
   nginx:
