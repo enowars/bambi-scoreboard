@@ -4,4 +4,6 @@ ADD requirements.txt .
 RUN pip install -r requirements.txt
 ADD gunicorn.conf.py .
 ADD scoreboard/ scoreboard/
-ENTRYPOINT ["gunicorn", "scoreboard:app"]
+ADD watch_entrypoint.sh .
+RUN chmod +x watch_entrypoint.sh
+ENTRYPOINT ["/service/watch_entrypoint.sh"]

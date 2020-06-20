@@ -5,14 +5,23 @@ services:
     build: backend
     environment:
       - REDIS_HOST=redis
-      - DATA_DIR=/data
     volumes:
-      - /services/data:/data
       - ./sock:/var/run/gunicorn:rw
     ulimits:
       nofile:
         soft: 20000
         hard: 40000
+  scoreboard_watch:
+    build:
+      context: backend
+      dockerfile: Dockerfile.watch
+    environment:
+      - REDIS_HOST=redis
+      - DATA_DIR=/data
+    volumes:
+      - ./services/data:/data
+    depends_on:
+      - redis
   redis:
     image: redis
   nginx:
