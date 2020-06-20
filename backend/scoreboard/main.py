@@ -191,6 +191,7 @@ async def startup() -> None:
             await parse_scoreboard(sb_path)
 
     asyncio.create_task(create_watch())
+    asyncio.create_task(handle_updates())
 
 
 async def create_watch() -> None:
@@ -201,7 +202,9 @@ async def create_watch() -> None:
 
 
 async def parse_scoreboard(file_: str) -> None:
-    global UPDATE_EVENT
+    basename = os.path.basename(file_)
+    if not basename.startswith("scoreboard") or not basename.endswith(".json"):
+        return
     try:
         obj = json.load(open(file_, "r"))
         sb = JsonScoreboard(**obj)
@@ -211,7 +214,6 @@ async def parse_scoreboard(file_: str) -> None:
             return
 
         entry = await redis.get(f"sb_{sb.CurrentRound}")
-        print(f"previous: sb_{sb.CurrentRound}: {entry}")
         if not entry:
             await redis.set(f"sb_{sb.CurrentRound}", sb.json())
 
@@ -219,9 +221,7 @@ async def parse_scoreboard(file_: str) -> None:
         print(f"previous: max_round: {entry}")
         if not entry or int(entry.decode()) < sb.CurrentRound:
             await redis.set("max_round", sb.CurrentRound)
-            old_event = UPDATE_EVENT
-            UPDATE_EVENT = asyncio.Event()
-            old_event.set()
+            await redis.publish("notifications", sb.CurrentRound)
 
         for t in sb.Teams:
             await redis.set(f"team_exists_${t.TeamId}", True)
@@ -229,3 +229,16 @@ async def parse_scoreboard(file_: str) -> None:
         print(f"Failed to load scoreboard: {file_}, {str(e)}")
     except json.JSONDecodeError as e:
         print(f"Failed to parse scoreboard: {file_}, {str(e)}")
+
+
+async def handle_updates() -> None:
+    global UPDATE_EVENT
+    p = redis.pubsub(ignore_subscribe_messages=True)
+    await p.subscribe("notifications")
+    while True:
+        reply = await p.get_message()
+        if not reply:
+            continue
+        old_event = UPDATE_EVENT
+        UPDATE_EVENT = asyncio.Event()
+        old_event.set()
