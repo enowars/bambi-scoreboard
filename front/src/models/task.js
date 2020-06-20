@@ -4,7 +4,6 @@ class Task {
         this.id = id;
         this.stores = stores;
         this.firstBloods = firstBloods;
-        console.log(this.firstBloods);
     }
 
     static comp(A, B) {

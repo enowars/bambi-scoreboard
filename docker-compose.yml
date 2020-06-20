@@ -1,0 +1,21 @@
+version: '2'
+
+services:
+  scoreboard:
+    build: backend
+    ports:
+      - 8000:8000
+    environment:
+      - REDIS_HOST=redis
+      - DATA_DIR=/data
+    volumes:
+      - ./data:/data
+  redis:
+    image: redis
+  nginx:
+    image: nginx
+    ports:
+      - 8080:8080
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./front/dist:/dist:ro

@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from watchgod import Change, awatch
 
 app = FastAPI()
-REDIS_HOST = os.getenv("REDIST_HOST", "127.0.0.1")
+REDIS_HOST = os.getenv("REDIS_HOST", "127.0.0.1")
 DATA_DIR = os.getenv("DATA_DIR", "../data")
 redis: aredis.StrictRedis = aredis.StrictRedis(host=REDIS_HOST)
 
