@@ -49,7 +49,7 @@ class ScoreboardService(BaseModel):
 
 
 class JsonScoreboard(BaseModel):
-    CurrentRound: int
+    CurrentRound: Optional[int]
     StartTimeEpoch: Optional[int]
     EndTimeEpoch: Optional[int]
     Services: List[ScoreboardService]
@@ -204,6 +204,9 @@ async def parse_scoreboard(file_: str) -> None:
     try:
         obj = json.load(open(file_, "r"))
         sb = JsonScoreboard(**obj)
+
+        if not sb.CurrentRound:
+            return
 
         entry = await redis.get(f"sb_{sb.CurrentRound}")
         print(f"previous: sb_{sb.CurrentRound}: {entry}")
