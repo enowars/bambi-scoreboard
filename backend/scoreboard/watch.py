@@ -10,7 +10,7 @@ from .models import JsonScoreboard
 DATA_DIR = os.getenv("DATA_DIR", "../data")
 
 
-async def test() -> None:
+async def main() -> None:
     base_path = os.path.join(DATA_DIR, "scoreboard.json")
     await parse_scoreboard(base_path)
     r = await current_round()
@@ -63,4 +63,4 @@ async def parse_scoreboard(file_: str) -> None:
 
 
 if __name__ == "__main__":
-    asyncio.run(test())
+    asyncio.run(main())
