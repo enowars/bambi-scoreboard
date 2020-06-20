@@ -7,7 +7,8 @@ services:
       - REDIS_HOST=redis
       - DATA_DIR=/data
     volumes:
-      - ./data:/data
+      - /services/data:/data
+      - ./sock:/var/run/gunicorn:rw
     ulimits:
       nofile:
         soft: 20000
@@ -16,8 +17,6 @@ services:
     image: redis
   nginx:
     image: nginx
-    ports:
-      - 8080:8080
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./front/dist:/dist:ro
@@ -25,3 +24,14 @@ services:
       nofile:
         soft: 20000
         hard: 40000
+  haproxy:
+    image: haproxy
+    ulimits:
+      nofile:
+        soft: 20000
+        hard: 40000
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+      - ./sock:/var/run/gunicorn:rw
+    ports:
+      - 80:80

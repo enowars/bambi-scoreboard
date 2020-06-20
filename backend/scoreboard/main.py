@@ -14,6 +14,7 @@ REDIS_HOST = os.getenv("REDIS_HOST", "127.0.0.1")
 DATA_DIR = os.getenv("DATA_DIR", "../data")
 redis: aredis.StrictRedis = aredis.StrictRedis(host=REDIS_HOST)
 UPDATE_EVENT: asyncio.Event = asyncio.Event()
+scoreboard_cache: Dict[int, bytes] = dict()
 
 
 class ServiceDetail(BaseModel):
@@ -79,9 +80,14 @@ async def get_scoreboard(round: Optional[int] = None) -> Optional[bytes]:
     if not round:
         return None
 
+    if round in scoreboard_cache:
+        return scoreboard_cache[round]
+
     entry = await redis.get(f"sb_{round}")
     if not entry:
         return None
+
+    scoreboard_cache[round] = entry
 
     return entry
 
