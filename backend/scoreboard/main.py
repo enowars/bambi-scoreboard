@@ -13,6 +13,7 @@ app = FastAPI()
 REDIS_HOST = os.getenv("REDIS_HOST", "127.0.0.1")
 DATA_DIR = os.getenv("DATA_DIR", "../data")
 redis: aredis.StrictRedis = aredis.StrictRedis(host=REDIS_HOST)
+UPDATE_EVENT: asyncio.Event = asyncio.Event()
 
 
 class ServiceDetail(BaseModel):
@@ -155,7 +156,7 @@ async def scoreboard() -> Response:
 
 @app.get("/api/scoreboard/live")
 async def scoreboard_live() -> Response:
-    await asyncio.sleep(5)
+    await UPDATE_EVENT.wait()
     sb = await get_scoreboard()
     if not sb:
         raise HTTPException(
@@ -200,6 +201,7 @@ async def create_watch() -> None:
 
 
 async def parse_scoreboard(file_: str) -> None:
+    global UPDATE_EVENT
     try:
         obj = json.load(open(file_, "r"))
         sb = JsonScoreboard(**obj)
@@ -217,6 +219,9 @@ async def parse_scoreboard(file_: str) -> None:
         print(f"previous: max_round: {entry}")
         if not entry or int(entry.decode()) < sb.CurrentRound:
             await redis.set("max_round", sb.CurrentRound)
+            old_event = UPDATE_EVENT
+            UPDATE_EVENT = asyncio.Event()
+            old_event.set()
 
         for t in sb.Teams:
             await redis.set(f"team_exists_${t.TeamId}", True)
