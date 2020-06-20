@@ -50,8 +50,8 @@ class ScoreboardService(BaseModel):
 
 class JsonScoreboard(BaseModel):
     CurrentRound: int
-    StartTimeEpoch: int
-    EndTimeEpoch: int
+    StartTimeEpoch: Optional[int]
+    EndTimeEpoch: Optional[int]
     Services: List[ScoreboardService]
     Teams: List[ScoreboardTeam]
 
