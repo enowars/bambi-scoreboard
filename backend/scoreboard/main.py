@@ -21,6 +21,7 @@ class ServiceDetail(BaseModel):
     LostDefensePoints: float
     ServiceLevelAgreementPoints: float
     ServiceStatus: str
+    Message: str
 
 
 class ScoreboardTeam(BaseModel):
