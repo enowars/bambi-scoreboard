@@ -8,13 +8,10 @@ class Task {
         this.name = name;
         this.id = id;
         this.stores = stores;
-        this.firstBloods = {}
+        this.firstBloods = {};
         firstBloods.forEach(incoming_fb => {
             this.firstBloods[incoming_fb.StoreIndex] = incoming_fb;
-            console.log(incoming_fb);
-            console.log(this.firstBloods);
         });
-        console.log(this.firstBloods);
     }
 
     static comp(A, B) {

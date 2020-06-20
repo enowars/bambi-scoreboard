@@ -135,7 +135,6 @@ export default {
         teamNameByIndex: function(index) {
             let ret = '';
             this.teams.forEach(team => {
-                console.log(team);
                 if (team.id == index) {
                     ret = team.name;
                 }
@@ -170,8 +169,6 @@ export default {
         this.teams = teams
             .map(team => new Team(team, this.tasks))
             .sort(Team.comp);
-
-        console.log(this.tasks);
 
         while (this.teams) {
             try {
