@@ -117,7 +117,6 @@ async def build_team_scoreboard(
         if not state:
             continue
         base.append(state)
-        print(base)
         entry = json.dumps(base).encode()
         await redis.set(f"team_{team_id}_round_{i}", entry)
     return entry
@@ -205,6 +204,7 @@ async def parse_scoreboard(file_: str) -> None:
     try:
         obj = json.load(open(file_, "r"))
         sb = JsonScoreboard(**obj)
+        print(f"Loading scoreboard for round {sb.CurrentRound}")
 
         if not sb.CurrentRound:
             return
