@@ -5,7 +5,7 @@ class Team {
         const { Name: name, TeamId: id } = obj;
         this.name = name;
         this.id = id;
-        this.ip = 'team' + id + '.enowars.com';
+        this.ip = '10.0.0.' + id; // TODO: make this configurable
         this.taskModels = taskModels;
         this.update(obj);
     }

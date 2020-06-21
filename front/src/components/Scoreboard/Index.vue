@@ -3,6 +3,7 @@
     <div v-else-if="teams !== null" class="table">
         <div class="row">
             <div class="number">#</div>
+            <div class="team-logo-col">logo</div>
             <div class="team">team</div>
             <div class="score">score</div>
             <div class="service-name">
@@ -39,6 +40,11 @@
                     {{ index + 1 }}
                 </div>
                 <div
+                    class="team-logo-col"
+                >
+                    <img class="team-logo" :src="teamLogoByIndex(id)" v-if="teamLogoByIndex(id)" />
+                </div>
+                <div
                     class="team team-row"
                     @click="openTeam(id)"
                     :class="[
@@ -47,8 +53,8 @@
                         highlighted ? 'pd-3-topbottom' : '',
                     ]"
                 >
-                    <div class="team-name">{{ name }}</div>
-                    <div class="ip">{{ ip }}</div>
+                    <div class="team-name"><img class="team-flag" :src="teamFlagByIndex(id)" v-if="teamFlagByIndex(id)" /> {{ name }}</div>
+                    <div class="ip">{{ getDnsSuffix() ? `team${id}.${getDnsSuffix()}` : ip }}</div>
                 </div>
                 <div
                     class="score"
@@ -141,9 +147,39 @@ export default {
             });
             return ret;
         },
+
+        teamFlagByIndex: function(index) {
+            if (!this.config.Teams[index]) return null;
+            return this.config.Teams[index]['FlagUrl'];
+        },
+
+        teamLogoByIndex: function(index) {
+            if (!this.config.Teams[index]) return null;
+            return this.config.Teams[index]['LogoUrl'];
+        },
+
+        getDnsSuffix: function() {
+            return this.config.DnsSuffix;
+        }
     },
 
     created: async function() {
+        let t;
+        while (!t) {
+            try {
+                t = await axios.get(`${serverUrl}/api/config`);
+                break;
+            } catch (err) {
+                await new Promise(r => setTimeout(r, 2000));
+            }
+        }
+
+        this.config = t.data;
+
+        if (this.config.Title) {
+            document.title = `${this.config.Title} Scoreboard`;
+        }
+
         let r;
         while (!r) {
             try {
@@ -268,6 +304,26 @@ export default {
     font-weight: bold;
 }
 
+.team-flag {
+    max-height: 14px;
+    border: 1px solid #000;
+}
+
+.team-logo {
+    max-height: 70%;
+    max-width: 150px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+.team-logo-col {
+    flex: 2 1 0;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+}
+
 .number {
     flex: 1 1 0;
     display: flex;
@@ -276,7 +332,7 @@ export default {
 }
 
 .team {
-    flex: 3 1 15%;
+    flex: 3 1 10%;
     display: flex;
     flex-flow: column nowrap;
     justify-content: center;

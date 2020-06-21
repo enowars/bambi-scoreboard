@@ -7,10 +7,13 @@ from watchgod import Change, awatch
 from .common import current_round, redis
 from .models import JsonScoreboard
 
-DATA_DIR = os.getenv("DATA_DIR", "../data")
+DATA_DIR = os.getenv("DATA_DIR", "/services/data")
+CTF_JSON_DIR = os.getenv("CTF_JSON_DIR", "/services/EnoEngine")
 
 
 async def main() -> None:
+    await parse_ctf(os.path.join(CTF_JSON_DIR, "ctf.json"))
+
     base_path = os.path.join(DATA_DIR, "scoreboard.json")
     await parse_scoreboard(base_path)
     r = await current_round()
@@ -28,6 +31,37 @@ async def main() -> None:
                 await parse_scoreboard(c[1])
             else:
                 print(f"ignoring change: {c}")
+
+
+async def parse_ctf(file_: str) -> None:
+    basename = os.path.basename(file_)
+    if basename != "ctf.json":
+        print(f"skipping ctf.json: {file_}")
+        return
+    print(f"parsing ctf.json: {file_}")
+    try:
+        obj = json.load(open(file_, "r"))
+
+        team_info = {}
+        for t in obj["Teams"]:
+            team_info[t["Id"]] = {
+                "Id": t["Id"],
+                "Name": t["Name"],
+                "LogoUrl": t["LogoUrl"] if "LogoUrl" in t else None,
+                "FlagUrl": t["FlagUrl"] if "FlagUrl" in t else None,
+            }
+
+        config = {
+            "DnsSuffix": obj["DnsSuffix"] if "DnsSuffix" in obj else None,
+            "Title": obj["Title"] if "Title" in obj else None,
+            "Teams": team_info,
+        }
+
+        await redis.set("config", json.dumps(config).encode())
+    except FileNotFoundError as e:
+        print(f"Failed to load ctf.json: {file_}, {str(e)}")
+    except json.JSONDecodeError as e:
+        print(f"Failed to parse ctf.json: {file_}, {str(e)}")
 
 
 async def parse_scoreboard(file_: str) -> None:
