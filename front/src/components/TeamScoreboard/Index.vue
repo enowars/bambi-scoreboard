@@ -121,8 +121,8 @@ export default {
                 round: s.Round,
                 score: s.TotalPoints,
                 tasks: s.ServiceDetails.map(s => new TeamTask(s)).sort(
-                    ({ ServiceId: i1 }, { ServiceId: i2 }) => {
-                        return i2 - i1;
+                    ({ taskId: i1 }, { taskId: i2 }) => {
+                        return i1 - i2;
                     }
                 ),
             }));
