@@ -47,8 +47,8 @@ async def parse_ctf(file_: str) -> None:
             team_info[t["Id"]] = {
                 "Id": t["Id"],
                 "Name": t["Name"],
-                "LogoUrl": t["LogoUrl"],
-                "FlagUrl": t["FlagUrl"],
+                "LogoUrl": t["LogoUrl"] if "LogoUrl" in t else None,
+                "FlagUrl": t["FlagUrl"] if "FlagUrl" in t else None,
             }
 
         config = {
