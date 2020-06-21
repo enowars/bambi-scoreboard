@@ -17,8 +17,10 @@ services:
       - REDIS_HOST=redis
       - DATA_DIR=/data
       - PYTHONUNBUFFERED=1
+      - CTF_JSON_DIR=/EnoEngine
     volumes:
-      - /services/data:/data
+      - /services/data:/data:ro
+      - /services/EnoEngine/ctf.json:/EnoEngine/ctf.json:ro
     depends_on:
       - redis
     entrypoint: ["python", "-m", "scoreboard.watch"]

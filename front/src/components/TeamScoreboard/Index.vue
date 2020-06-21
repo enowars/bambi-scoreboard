@@ -189,7 +189,7 @@ export default {
 }
 
 .team {
-    flex: 3 1 15%;
+    flex: 3 1 10%;
     display: flex;
     flex-flow: column nowrap;
     justify-content: center;

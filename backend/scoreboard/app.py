@@ -134,6 +134,16 @@ async def get_team(team_id: int) -> Response:
     return Response(content=sb, media_type="application/json")
 
 
+@app.get("/api/config")
+async def get_config() -> Response:
+    ti = await redis.get("config")
+    if not ti:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="No team info found"
+        )
+    return Response(content=ti, media_type="application/json")
+
+
 @app.on_event("startup")
 async def startup() -> None:
     asyncio.create_task(handle_updates())
