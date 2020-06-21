@@ -29,8 +29,6 @@ import Container from '@/components/Container/Index';
 import Topbar from '@/components/Topbar/Index';
 import Scoreboard from '@/components/Scoreboard/Index';
 import Statuses from '@/components/Statuses/Index';
-import axios from 'axios';
-import { serverUrl } from '@/config';
 
 export default {
     components: {
