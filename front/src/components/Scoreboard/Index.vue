@@ -6,8 +6,16 @@
             <div class="team">team</div>
             <div class="score">score</div>
             <div class="service-name">
-                <div :key="name" class="service-cell" v-for="{ name } in tasks">
+                <div :key="name" class="service-cell" v-for="{ name, stores, firstBloods } in tasks">
                     {{ name }}
+                    <div class="first-bloods">
+                        <div :key="n" class="firstblood-cell" v-for="n in stores">
+                        <i class="fas fa-tint blood" v-if="firstBloods[n]" />
+                        <span :class="[firstBloods[n] ? 'blood' : '']">
+                        {{ firstBloods[n] ? teamNameByIndex(firstBloods[n].TeamId) : `Flagstore #${n} unexploited` }}
+                        </span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -122,6 +130,16 @@ export default {
         openTeam: function(id) {
             clearInterval(this.timer);
             this.$router.push({ name: 'team', params: { id } }).catch(() => {});
+        },
+
+        teamNameByIndex: function(index) {
+            let ret = '';
+            this.teams.forEach(team => {
+                if (team.id == index) {
+                    ret = team.name;
+                }
+            });
+            return ret;
         },
     },
 
@@ -367,6 +385,14 @@ export default {
         rgba(48, 255, 230, 1) 75%,
         rgba(48, 255, 144, 1) 100%
     );
+}
+
+.firstblood-cell {
+    font-size: 10px;
+}
+
+.blood {
+    color: rgb(180, 0, 0);
 }
 
 @keyframes rotate {

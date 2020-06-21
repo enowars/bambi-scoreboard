@@ -8,7 +8,10 @@ class Task {
         this.name = name;
         this.id = id;
         this.stores = stores;
-        this.firstBloods = firstBloods;
+        this.firstBloods = {};
+        firstBloods.forEach(incoming_fb => {
+            this.firstBloods[incoming_fb.StoreIndex] = incoming_fb;
+        });
     }
 
     static comp(A, B) {
