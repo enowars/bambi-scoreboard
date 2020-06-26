@@ -213,11 +213,13 @@ export default {
                     CurrentRound: round,
                     StartTimeEpoch: round_start,
                     EndTimeEpoch: round_end,
+                    Services: tasks,
                     Teams: teams,
                 } = r.data;
                 this.updateRoundStart(round_end);
                 this.updateRoundTime(round_end - round_start);
                 this.updateRound(round);
+                this.tasks = tasks.map(task => new Task(task)).sort(Task.comp);
                 teams.forEach(incoming_team => {
                     this.teams.forEach(team => {
                         team.update(incoming_team);
