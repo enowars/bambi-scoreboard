@@ -2,6 +2,7 @@ import asyncio
 import json
 from typing import Any, Dict, List, Optional
 
+import aredis
 from fastapi import FastAPI, HTTPException, status
 from fastapi.responses import Response
 
@@ -153,7 +154,16 @@ async def get_config() -> Response:
 
 @app.on_event("startup")
 async def startup() -> None:
-    asyncio.create_task(handle_updates())
+    asyncio.create_task(handle_updates_forever())
+
+
+async def handle_updates_forever() -> None:
+    while True:
+        try:
+            await handle_updates()
+        except aredis.exceptions.ConnectionError:
+            print("Failed to connect to redis...")
+            await asyncio.sleep(1)
 
 
 async def handle_updates() -> None:

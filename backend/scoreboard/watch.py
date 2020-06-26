@@ -2,6 +2,7 @@ import asyncio
 import json
 import os
 
+import aredis
 from watchgod import Change, awatch
 
 from .common import current_round, redis
@@ -9,28 +10,31 @@ from .models import JsonScoreboard
 
 DATA_DIR = os.getenv("DATA_DIR", "/services/data")
 CTF_JSON_DIR = os.getenv("CTF_JSON_DIR", "/services/EnoEngine")
+CTF_JSON_PATH = os.path.join(CTF_JSON_DIR, "ctf.json")
+
+
+class RestartedException(Exception):
+    pass
 
 
 async def main() -> None:
-    await parse_ctf(os.path.join(CTF_JSON_DIR, "ctf.json"))
+    while True:
+        try:
+            await parse_ctf(CTF_JSON_PATH)
 
-    base_path = os.path.join(DATA_DIR, "scoreboard.json")
-    await parse_scoreboard(base_path)
-    r = await current_round()
-    if r is not None:
-        for i in range(0, r + 1):
-            sb_path = os.path.join(DATA_DIR, f"scoreboard{i}.json")
-            await parse_scoreboard(sb_path)
-    else:
-        print("no pre-existing scoreboard files found")
+            base_path = os.path.join(DATA_DIR, "scoreboard.json")
+            await parse_base_scoreboard(base_path)
+            if not await current_round():
+                print("no pre-existing scoreboard files found")
 
-    print(f"watching {DATA_DIR}")
-    async for changes in awatch(DATA_DIR):
-        for c in changes:
-            if c[0] == Change.added or c[0] == Change.modified:
-                await parse_scoreboard(c[1])
-            else:
-                print(f"ignoring change: {c}")
+            print(f"watching {base_path}")
+            async for changes in awatch(base_path):
+                for c in changes:
+                    if c[0] == Change.added or c[0] == Change.modified:
+                        await parse_base_scoreboard(base_path)
+        except aredis.exceptions.ConnectionError:
+            print("Failed to connect to redis...")
+            await asyncio.sleep(1)
 
 
 async def parse_ctf(file_: str) -> None:
@@ -64,6 +68,23 @@ async def parse_ctf(file_: str) -> None:
         print(f"Failed to parse ctf.json: {file_}, {str(e)}")
 
 
+async def parse_base_scoreboard(base_path: str) -> None:
+    try:
+        prev_max = (await current_round()) or 0
+        await parse_scoreboard(base_path)
+    except RestartedException:
+        print("CTF was restarted, flushing Redis")
+        await redis.flushall()
+        await parse_ctf(CTF_JSON_PATH)
+        await parse_scoreboard(base_path)
+        prev_max = 0
+
+    new_max = (await current_round()) or 0
+    for i in range(prev_max, new_max):
+        sb_path = os.path.join(DATA_DIR, f"scoreboard{i}.json")
+        await parse_scoreboard(sb_path)
+
+
 async def parse_scoreboard(file_: str) -> None:
     basename = os.path.basename(file_)
     if not basename.startswith("scoreboard") or not basename.endswith(".json"):
@@ -87,6 +108,12 @@ async def parse_scoreboard(file_: str) -> None:
         if not entry or int(entry.decode()) < sb.CurrentRound:
             await redis.set("max_round", sb.CurrentRound)
             await redis.publish("notifications", sb.CurrentRound)
+        elif (
+            entry
+            and int(entry.decode()) > sb.CurrentRound
+            and basename == "scoreboard.json"
+        ):
+            raise RestartedException()
 
         for t in sb.Teams:
             await redis.set(f"team_exists_${t.TeamId}", True)
