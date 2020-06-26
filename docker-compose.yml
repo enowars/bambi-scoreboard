@@ -11,6 +11,8 @@ services:
       nofile:
         soft: 20000
         hard: 40000
+    depends_on:
+      - redis
   scoreboard_watch:
     build: backend
     environment:
