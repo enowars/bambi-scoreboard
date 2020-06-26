@@ -308,6 +308,7 @@ export default {
 
 .team-flag {
     max-height: 14px;
+    max-width: 19px;
     border: 1px solid #000;
 }
 
