@@ -58,7 +58,7 @@
                         </div>
                         <div class="defense">
                             <i class="fas fa-shield-alt" />
-                            -{{ defense.toFixed(2) }}
+                            {{ defense.toFixed(2) }}
                         </div>
                     </div>
                 </div>
