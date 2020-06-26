@@ -54,6 +54,7 @@ async def build_team_scoreboard(
     team_id: int, base: List[Dict[str, Any]], start: int, end: int
 ) -> Optional[bytes]:
     entry: Optional[bytes] = None
+    last: Optional[int] = None
     for i in range(start + 1, end + 1):
         sb = await get_scoreboard(i)
         if not sb:
@@ -61,10 +62,13 @@ async def build_team_scoreboard(
         state = get_team_state_from_scoreoard(sb, team_id)
         if not state:
             continue
+        last = i
         base.append(state)
+    if last is not None:
         entry = json.dumps(base).encode()
-        await redis.set(f"team_{team_id}_round_{i}", entry)
-    return entry
+        await redis.set(f"team_{team_id}_round_{last}", entry)
+        return entry
+    return None
 
 
 async def get_team_scoreboard(team_id: int) -> Optional[bytes]:
@@ -81,9 +85,12 @@ async def get_team_scoreboard(team_id: int) -> Optional[bytes]:
     for i in range(round)[::-1]:
         entry = await redis.get(f"team_{team_id}_round_{i}")
         if entry:
-            return await build_team_scoreboard(
+            ret = await build_team_scoreboard(
                 team_id, json.loads(entry.decode()), i, round
             )
+            if ret:
+                await redis.set(f"team_{team_id}_round_{i}", None)
+            return ret
 
     return await build_team_scoreboard(team_id, [], 0, round)
 
