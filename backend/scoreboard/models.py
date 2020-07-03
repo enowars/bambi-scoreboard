@@ -9,7 +9,7 @@ class ServiceDetail(BaseModel):
     LostDefensePoints: float
     ServiceLevelAgreementPoints: float
     ServiceStatus: str
-    Message: str
+    Message: Optional[str]
 
 
 class ScoreboardTeam(BaseModel):
