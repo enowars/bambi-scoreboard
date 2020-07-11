@@ -9,8 +9,6 @@ from .common import current_round, redis
 from .models import JsonScoreboard
 
 DATA_DIR = os.getenv("DATA_DIR", "/services/data")
-CTF_JSON_DIR = os.getenv("CTF_JSON_DIR", "/services/EnoEngine")
-CTF_JSON_PATH = os.path.join(CTF_JSON_DIR, "ctf.json")
 
 
 class RestartedException(Exception):
@@ -20,7 +18,7 @@ class RestartedException(Exception):
 async def main() -> None:
     while True:
         try:
-            await parse_ctf(CTF_JSON_PATH)
+            await parse_info(os.path.join(DATA_DIR, "scoreboardInfo.json"))
 
             base_path = os.path.join(DATA_DIR, "scoreboard.json")
             await parse_base_scoreboard(base_path)
@@ -37,12 +35,12 @@ async def main() -> None:
             await asyncio.sleep(1)
 
 
-async def parse_ctf(file_: str) -> None:
+async def parse_info(file_: str) -> None:
     basename = os.path.basename(file_)
-    if basename != "ctf.json":
-        print(f"skipping ctf.json: {file_}")
+    if basename != "scoreboardInfo.json":
+        print(f"skipping scoreboardInfo.json: {file_}")
         return
-    print(f"parsing ctf.json: {file_}")
+    print(f"parsing scoreboardInfo.json: {file_}")
     try:
         obj = json.load(open(file_, "r"))
 
