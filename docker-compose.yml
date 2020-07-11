@@ -22,7 +22,6 @@ services:
       - CTF_JSON_DIR=/EnoEngine
     volumes:
       - /services/data:/data:ro
-      - /services/EnoEngine/ctf.json:/EnoEngine/ctf.json:ro
     depends_on:
       - redis
     entrypoint: ["python", "-m", "scoreboard.watch"]
