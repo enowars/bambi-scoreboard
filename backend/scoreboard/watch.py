@@ -18,7 +18,9 @@ class RestartedException(Exception):
 async def main() -> None:
     while True:
         try:
-            await parse_info(os.path.join(DATA_DIR, "scoreboardInfo.json"))
+            if (not await parse_info(os.path.join(DATA_DIR, "scoreboardInfo.json"))):
+                await asyncio.sleep(1)
+                continue
 
             base_path = os.path.join(DATA_DIR, "scoreboard.json")
             await parse_base_scoreboard(base_path)
@@ -35,11 +37,11 @@ async def main() -> None:
             await asyncio.sleep(1)
 
 
-async def parse_info(file_: str) -> None:
+async def parse_info(file_: str) -> bool:
     basename = os.path.basename(file_)
     if basename != "scoreboardInfo.json":
         print(f"skipping scoreboardInfo.json: {file_}")
-        return
+        return False
     print(f"parsing scoreboardInfo.json: {file_}")
     try:
         obj = json.load(open(file_, "r"))
@@ -60,10 +62,12 @@ async def parse_info(file_: str) -> None:
         }
 
         await redis.set("config", json.dumps(config).encode())
+        return True
     except FileNotFoundError as e:
-        print(f"Failed to load ctf.json: {file_}, {str(e)}")
+        print(f"Failed to load scoreboardInfo.json: {file_}, {str(e)}")
     except json.JSONDecodeError as e:
-        print(f"Failed to parse ctf.json: {file_}, {str(e)}")
+        print(f"Failed to parse scoreboardInfo.json: {file_}, {str(e)}")
+    return False
 
 
 async def parse_base_scoreboard(base_path: str) -> None:
