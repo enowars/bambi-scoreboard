@@ -17,6 +17,11 @@ const routes = [
         name: 'team',
         component: TeamScoreboard,
     },
+    {
+        path: '/scoreboard/:round/',
+        name: 'scoreboard',
+        component: StaticScoreboard,
+    },
 ];
 
 const router = new VueRouter({
