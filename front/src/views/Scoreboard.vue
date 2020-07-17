@@ -6,9 +6,7 @@
                 :roundProgress="roundProgress"
                 :timer="timer"
             />
-            <browsing
-                :round="round"
-            />
+            <browsing :round="round" />
         </header>
         <container>
             <statuses />
@@ -54,7 +52,12 @@ export default {
     },
 
     created: async function() {
-        this.timer = setInterval(this.tick, 500);
+        if (this.$route.params.round === undefined) {
+            this.timer = setInterval(this.tick, 500);
+        } else {
+            clearInterval(this.timer);
+            this.round = +this.$route.params.round;
+        }
     },
 
     methods: {

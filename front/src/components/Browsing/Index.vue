@@ -1,21 +1,26 @@
 <template>
     <div class="changeRound">
-      <button @click="openRound(round-1)">Previous Round</button>
-      <button @click="openRound(round+1)">Next round</button>
+        <a :href="+round - 1">Previous Round</a>
+        <a :href="+round + 1">Next round</a>
     </div>
 </template>
 
 <script>
 export default {
-    methods: {
+    props: {
+        round: Number,
+    },
+    methods:             {
         openRound: function(round) {
-            this.$router.push({ name: 'scoreboard', params: { round } }).catch(() => {});
-    }
+            this.$router
+                .push({ name: 'index', params: { round } })
+                .catch(() => {});
+        },
+    },
 };
 </script>
 
 <style lang="scss" scoped>
-
 .changeRound {
     position: relative;
     background: lightblue;
