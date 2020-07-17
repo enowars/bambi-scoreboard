@@ -6,7 +6,7 @@
                 :roundProgress="roundProgress"
                 :timer="timer"
             />
-            <browsing :round="round" />
+
         </header>
         <container>
             <statuses />
@@ -28,7 +28,7 @@
 <script>
 import Container from '@/components/Container/Index';
 import Topbar from '@/components/Topbar/Index';
-import Browsing from '@/components/Browsing/Index';
+
 import Scoreboard from '@/components/Scoreboard/Index';
 import Statuses from '@/components/Statuses/Index';
 
@@ -36,7 +36,7 @@ export default {
     components: {
         Container,
         Topbar,
-        Browsing,
+
         Scoreboard,
         Statuses,
     },
@@ -52,12 +52,7 @@ export default {
     },
 
     created: async function() {
-        if (this.$route.params.round === undefined) {
-            this.timer = setInterval(this.tick, 500);
-        } else {
-            clearInterval(this.timer);
-            this.round = +this.$route.params.round;
-        }
+        this.timer = setInterval(this.tick, 500);
     },
 
     methods: {
