@@ -8,12 +8,12 @@ Vue.use(VueRouter);
 
 const routes = [
     {
-        path: '/',
+        path: '/:round/',
         name: 'index',
         component: Scoreboard,
     },
     {
-        path: '/team/:id/',
+        path: '/teams/:id/',
         name: 'team',
         component: TeamScoreboard,
     },

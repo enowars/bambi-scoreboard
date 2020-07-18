@@ -7,14 +7,29 @@
             <div class="team">team</div>
             <div class="score">score</div>
             <div class="service-name">
-                <div :key="name" class="service-cell" v-for="{ name, stores, firstBloods } in tasks">
+                <div
+                    :key="name"
+                    class="service-cell"
+                    v-for="{ name, stores, firstBloods } in tasks"
+                >
                     {{ name }}
                     <div class="first-bloods">
-                        <div :key="n" class="firstblood-cell" v-for="n in stores">
-                        <i class="fas fa-tint blood" v-if="firstBloods[n]" />
-                        <span :class="[firstBloods[n] ? 'blood' : '']">
-                        {{ firstBloods[n] ? teamNameByIndex(firstBloods[n].TeamId) : `Flagstore #${n} unexploited` }}
-                        </span>
+                        <div
+                            :key="n"
+                            class="firstblood-cell"
+                            v-for="n in stores"
+                        >
+                            <i
+                                class="fas fa-tint blood"
+                                v-if="firstBloods[n]"
+                            />
+                            <span :class="[firstBloods[n] ? 'blood' : '']">
+                                {{
+                                    firstBloods[n]
+                                        ? teamNameByIndex(firstBloods[n].TeamId)
+                                        : `Flagstore #${n} unexploited`
+                                }}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -39,10 +54,12 @@
                 >
                     {{ index + 1 }}
                 </div>
-                <div
-                    class="team-logo-col"
-                >
-                    <img class="team-logo" :src="teamLogoByIndex(id)" v-if="teamLogoByIndex(id)" />
+                <div class="team-logo-col">
+                    <img
+                        class="team-logo"
+                        :src="teamLogoByIndex(id)"
+                        v-if="teamLogoByIndex(id)"
+                    />
                 </div>
                 <div
                     class="team team-row"
@@ -53,8 +70,19 @@
                         highlighted ? 'pd-3-topbottom' : '',
                     ]"
                 >
-                    <div class="team-name"><img class="team-flag" :src="teamFlagByIndex(id)" v-if="teamFlagByIndex(id)" /> {{ name }}</div>
-                    <div class="ip">{{ getDnsSuffix() ? `team${id}.${getDnsSuffix()}` : ip }}</div>
+                    <div class="team-name">
+                        <img
+                            class="team-flag"
+                            :src="teamFlagByIndex(id)"
+                            v-if="teamFlagByIndex(id)"
+                        />
+                        {{ name }}
+                    </div>
+                    <div class="ip">
+                        {{
+                            getDnsSuffix() ? `team${id}.${getDnsSuffix()}` : ip
+                        }}
+                    </div>
                 </div>
                 <div
                     class="score"
@@ -83,10 +111,10 @@
                         }"
                         :class="`status-${status}`"
                     >
-                        <button class="info">
+                        <button v-if="message" class="info">
                             <i class="fas fa-info-circle" />
                             <span class="tooltip">{{
-                                message === '' ? 'OK' : message
+                                message
                             }}</span>
                         </button>
                         <div class="sla">
@@ -160,7 +188,7 @@ export default {
 
         getDnsSuffix: function() {
             return this.config.DnsSuffix;
-        }
+        },
     },
 
     created: async function() {
@@ -183,6 +211,7 @@ export default {
         let r;
         while (!r) {
             try {
+                //r = await axios.get(`${serverUrl}/api/rounds/${round}`);
                 r = await axios.get(`${serverUrl}/api/scoreboard`);
                 break;
             } catch (err) {

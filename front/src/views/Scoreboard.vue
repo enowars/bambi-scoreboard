@@ -6,6 +6,7 @@
                 :roundProgress="roundProgress"
                 :timer="timer"
             />
+
         </header>
         <container>
             <statuses />
@@ -27,6 +28,7 @@
 <script>
 import Container from '@/components/Container/Index';
 import Topbar from '@/components/Topbar/Index';
+
 import Scoreboard from '@/components/Scoreboard/Index';
 import Statuses from '@/components/Statuses/Index';
 
@@ -34,6 +36,7 @@ export default {
     components: {
         Container,
         Topbar,
+
         Scoreboard,
         Statuses,
     },

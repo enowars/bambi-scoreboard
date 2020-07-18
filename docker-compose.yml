@@ -21,7 +21,7 @@ services:
       - PYTHONUNBUFFERED=1
       - CTF_JSON_DIR=/EnoEngine
     volumes:
-      - /services/data:/data:ro
+      - ./data:/data:ro
     depends_on:
       - redis
     entrypoint: ["python", "-m", "scoreboard.watch"]
@@ -46,4 +46,4 @@ services:
       - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
       - ./sock:/var/run/gunicorn:rw
     ports:
-      - 80:80
+      - 8000:80

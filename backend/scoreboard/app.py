@@ -106,16 +106,6 @@ async def scoreboard() -> Response:
     return Response(content=sb, media_type="application/json")
 
 
-@app.get("/api/scoreboard/history/{round_id}")
-async def scoreboard_history(round_id: int) -> Response:
-    sb = await get_scoreboard(round_id)
-    if not sb:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Round not found"
-        )
-    return Response(content=sb, media_type="application/json")
-
-
 @app.get("/api/scoreboard/live")
 async def scoreboard_live() -> Response:
     await UPDATE_EVENT.wait()
@@ -123,6 +113,16 @@ async def scoreboard_live() -> Response:
     if not sb:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="CTF not yet started"
+        )
+    return Response(content=sb, media_type="application/json")
+
+
+@app.get("/api/rounds/{round_id}")
+async def scoreboard_history(round_id: int) -> Response:
+    sb = await get_scoreboard(round_id)
+    if not sb:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Round not found"
         )
     return Response(content=sb, media_type="application/json")
 
