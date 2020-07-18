@@ -148,6 +148,7 @@ export default {
         padding-top: 0.6em;
         padding-bottom: 0.6em;
         background-color: #2EC1D9;
+        color: #ffffff;
     }
 
     & > :not(:first-child) > * {
