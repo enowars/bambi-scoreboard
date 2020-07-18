@@ -221,6 +221,8 @@ export default {
     display: flex;
     flex-flow: row nowrap;
     text-align: center;
+    background-color: #2ec1d9;
+    color: #ffffff;
 }
 
 .service-cell {
