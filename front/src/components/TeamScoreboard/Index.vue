@@ -148,6 +148,7 @@ export default {
         padding-top: 0.6em;
         padding-bottom: 0.6em;
         background-color: #2EC1D9;
+        color: #ffffff;
     }
 
     & > :not(:first-child) > * {
@@ -221,6 +222,8 @@ export default {
     display: flex;
     flex-flow: row nowrap;
     text-align: center;
+    background-color: #2ec1d9;
+    color: #ffffff;
 }
 
 .service-cell {
