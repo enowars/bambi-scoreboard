@@ -141,11 +141,13 @@ export default {
 .table {
     display: flex;
     flex-flow: column nowrap;
+    background-color: #ffffff;
 
     & > :first-child > :not(:last-child) {
         font-weight: bold;
         padding-top: 0.6em;
         padding-bottom: 0.6em;
+        background-color: #2EC1D9;
     }
 
     & > :not(:first-child) > * {
