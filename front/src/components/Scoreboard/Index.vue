@@ -264,6 +264,8 @@ export default {
         font-weight: bold;
         padding-top: 0.6em;
         padding-bottom: 0.6em;
+        color: #ffffff;
+        background-color: #2EC1D9;
     }
 
     & > :not(:first-child) > * {
