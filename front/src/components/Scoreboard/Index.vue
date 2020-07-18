@@ -83,7 +83,7 @@
                         }"
                         :class="`status-${status}`"
                     >
-                        <button class="info">
+                        <button v-if="message" class="info">
                             <i class="fas fa-info-circle" />
                             <span class="tooltip">{{
                                 message === '' ? 'OK' : message
