@@ -258,6 +258,7 @@ export default {
 .table {
     display: flex;
     flex-flow: column nowrap;
+    background-color: #ffffff;
 
     & > :first-child > :not(:last-child) {
         font-weight: bold;
