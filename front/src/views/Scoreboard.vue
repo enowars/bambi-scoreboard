@@ -6,7 +6,6 @@
                 :roundProgress="roundProgress"
                 :timer="timer"
             />
-
         </header>
         <container>
             <statuses />

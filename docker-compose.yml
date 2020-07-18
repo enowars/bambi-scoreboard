@@ -46,4 +46,4 @@ services:
       - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
       - ./sock:/var/run/gunicorn:rw
     ports:
-      - 8000:80
+      - 80:80

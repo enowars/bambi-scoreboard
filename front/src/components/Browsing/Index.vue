@@ -10,7 +10,7 @@ export default {
     props: {
         round: Number,
     },
-    methods:             {
+    methods: {
         openRound: function(round) {
             this.$router
                 .push({ name: 'index', params: { round } })
