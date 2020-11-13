@@ -47,17 +47,17 @@ async def parse_info(file_: str) -> bool:
         obj = json.load(open(file_, "r"))
 
         team_info = {}
-        for t in obj["Teams"]:
-            team_info[t["Id"]] = {
-                "Id": t["Id"],
-                "Name": t["Name"],
-                "LogoUrl": t["LogoUrl"] if "LogoUrl" in t else None,
-                "FlagUrl": t["FlagUrl"] if "FlagUrl" in t else None,
+        for t in obj["teams"]:
+            team_info[t["id"]] = {
+                "Id": t["id"],
+                "Name": t["name"],
+                "LogoUrl": t["logoUrl"] if "logoUrl" in t else None,
+                "FlagUrl": t["flagUrl"] if "flagUrl" in t else None,
             }
 
         config = {
-            "DnsSuffix": obj["DnsSuffix"] if "DnsSuffix" in obj else None,
-            "Title": obj["Title"] if "Title" in obj else None,
+            "DnsSuffix": obj["dnsSuffix"] if "dnsSuffix" in obj else None,
+            "Title": obj["title"] if "title" in obj else None,
             "Teams": team_info,
         }
 
