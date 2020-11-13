@@ -36,16 +36,16 @@ def get_team_state_from_scoreoard(
 ) -> Optional[Dict[str, Any]]:
     sb = json.loads(scoreboard.decode())
 
-    for t in sb["Teams"]:
-        if t["TeamId"] != team_id:
+    for t in sb["teams"]:
+        if t["teamId"] != team_id:
             continue
         return {
-            "Round": sb["CurrentRound"],
-            "TotalPoints": t["TotalPoints"],
-            "AttackPoints": t["AttackPoints"],
-            "LostDefensePoints": t["LostDefensePoints"],
-            "ServiceLevelAgreementPoints": t["ServiceLevelAgreementPoints"],
-            "ServiceDetails": t["ServiceDetails"],
+            "round": sb["currentRound"],
+            "totalPoints": t["totalPoints"],
+            "attackPoints": t["attackPoints"],
+            "lostDefensePoints": t["lostDefensePoints"],
+            "serviceLevelAgreementPoints": t["serviceLevelAgreementPoints"],
+            "serviceDetails": t["serviceDetails"],
         }
 
     return None

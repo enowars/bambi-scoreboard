@@ -99,28 +99,28 @@ export default {
                 `${serverUrl}/api/teams/${this.teamId}`
             );
             this.team = new Team(
-                scoreboard.Teams.filter(
-                    ({ TeamId }) => TeamId == this.teamId
+                scoreboard.teams.filter(
+                    ({ teamId }) => teamId == this.teamId
                 )[0],
                 []
             );
-            this.tasks = scoreboard.Services.sort(
-                ({ ServiceId: idA }, { ServiceId: idB }) => idA - idB
+            this.tasks = scoreboard.services.sort(
+                ({ serviceId: idA }, { serviceId: idB }) => idA - idB
             ).map(s => ({
                 name: s.ServiceName,
             }));
 
             this.round = states.reduce(
-                (acc, { Round }) => Math.max(acc, Round),
+                (acc, { round }) => Math.max(acc, round),
                 0
             );
 
             this.updateRound(this.round);
 
             states = states.map(s => ({
-                round: s.Round,
-                score: s.TotalPoints,
-                tasks: s.ServiceDetails.map(s => new TeamTask(s)).sort(
+                round: s.round,
+                score: s.totalPoints,
+                tasks: s.serviceDetails.map(s => new TeamTask(s)).sort(
                     ({ taskId: i1 }, { taskId: i2 }) => {
                         return i1 - i2;
                     }
