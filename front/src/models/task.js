@@ -1,9 +1,9 @@
 class Task {
     constructor({
-        ServiceName: name,
-        ServiceId: id,
-        MaxStores: stores,
-        FirstBloods: firstBloods,
+        serviceName: name,
+        serviceId: id,
+        maxStores: stores,
+        firstBloods: firstBloods,
     }) {
         this.name = name;
         this.id = id;

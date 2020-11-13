@@ -107,7 +107,7 @@ export default {
             this.tasks = scoreboard.services.sort(
                 ({ serviceId: idA }, { serviceId: idB }) => idA - idB
             ).map(s => ({
-                name: s.ServiceName,
+                name: s.serviceName,
             }));
 
             this.round = states.reduce(
