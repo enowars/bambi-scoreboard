@@ -49,16 +49,16 @@ async def parse_info(file_: str) -> bool:
         team_info = {}
         for t in obj["teams"]:
             team_info[t["id"]] = {
-                "Id": t["id"],
-                "Name": t["name"],
-                "LogoUrl": t["logoUrl"] if "logoUrl" in t else None,
-                "FlagUrl": t["flagUrl"] if "flagUrl" in t else None,
+                "id": t["id"],
+                "name": t["name"],
+                "logoUrl": t["logoUrl"] if "logoUrl" in t else None,
+                "flagUrl": t["flagUrl"] if "flagUrl" in t else None,
             }
 
         config = {
-            "DnsSuffix": obj["dnsSuffix"] if "dnsSuffix" in obj else None,
-            "Title": obj["title"] if "title" in obj else None,
-            "Teams": team_info,
+            "dnsSuffix": obj["dnsSuffix"] if "dnsSuffix" in obj else None,
+            "title": obj["title"] if "title" in obj else None,
+            "teams": team_info,
         }
 
         await redis.set("config", json.dumps(config).encode())
