@@ -13,7 +13,7 @@
                         <div :key="n" class="firstblood-cell" v-for="n in stores">
                         <i class="fas fa-tint blood" v-if="firstBloods[n]" />
                         <span :class="[firstBloods[n] ? 'blood' : '']">
-                        {{ firstBloods[n] ? teamNameByIndex(firstBloods[n].TeamId) : `Flagstore #${n} unexploited` }}
+                        {{ firstBloods[n] ? teamNameByIndex(firstBloods[n].teamId) : `Flagstore #${n} unexploited` }}
                         </span>
                         </div>
                     </div>
