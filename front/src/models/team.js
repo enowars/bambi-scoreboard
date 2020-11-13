@@ -11,13 +11,13 @@ class Team {
     }
 
     update(team) {
-        if (team.TeamId != this.id) return;
-        this.score = team.TotalPoints;
-        this.attack = team.AttackPoints;
-        this.defense = team.LostDefensePoints;
-        this.sla = team.ServiceLevelAgreementPoints;
+        if (team.teamId != this.id) return;
+        this.score = team.totalPoints;
+        this.attack = team.attackPoints;
+        this.defense = team.lostDefensePoints;
+        this.sla = team.serviceLevelAgreementPoints;
 
-        this.tasks = team.ServiceDetails.map(
+        this.tasks = team.serviceDetails.map(
             teamTask => new TeamTask(teamTask)
         );
 

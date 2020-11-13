@@ -149,13 +149,13 @@ export default {
         },
 
         teamFlagByIndex: function(index) {
-            if (!this.config.Teams[index]) return null;
-            return this.config.Teams[index]['FlagUrl'];
+            if (!this.config.teams[index]) return null;
+            return this.config.teams[index]['flagUrl'];
         },
 
         teamLogoByIndex: function(index) {
-            if (!this.config.Teams[index]) return null;
-            return this.config.Teams[index]['LogoUrl'];
+            if (!this.config.teams[index]) return null;
+            return this.config.teams[index]['logoUrl'];
         },
 
         getDnsSuffix: function() {
@@ -176,8 +176,8 @@ export default {
 
         this.config = t.data;
 
-        if (this.config.Title) {
-            document.title = `${this.config.Title} Scoreboard`;
+        if (this.config.title) {
+            document.title = `${this.config.title} Scoreboard`;
         }
 
         let r;
@@ -191,11 +191,11 @@ export default {
         }
 
         const {
-            CurrentRound: round,
-            StartTimeEpoch: round_start,
-            EndTimeEpoch: round_end,
-            Services: tasks,
-            Teams: teams,
+            currentRound: round,
+            startTimeEpoch: round_start,
+            endTimeEpoch: round_end,
+            services: tasks,
+            teams: teams,
         } = r.data;
 
         this.updateRoundStart(round_end);
@@ -210,11 +210,11 @@ export default {
             try {
                 r = await axios.get(`${serverUrl}/api/scoreboard/live`);
                 const {
-                    CurrentRound: round,
-                    StartTimeEpoch: round_start,
-                    EndTimeEpoch: round_end,
-                    Services: tasks,
-                    Teams: teams,
+                    currentRound: round,
+                    startTimeEpoch: round_start,
+                    endTimeEpoch: round_end,
+                    services: tasks,
+                    teams: teams,
                 } = r.data;
                 this.updateRoundStart(round_end);
                 this.updateRoundTime(round_end - round_start);

@@ -10,7 +10,7 @@ class Task {
         this.stores = stores;
         this.firstBloods = {};
         firstBloods.forEach(incoming_fb => {
-            this.firstBloods[incoming_fb.StoreIndex + 1] = incoming_fb;
+            this.firstBloods[incoming_fb.storeIndex + 1] = incoming_fb;
         });
     }
 
