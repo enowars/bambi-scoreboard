@@ -1,11 +1,11 @@
 class TeamTask {
     constructor({
-        ServiceId: taskId,
-        ServiceStatus: status,
-        ServiceLevelAgreementPoints: sla,
-        AttackPoints: attack,
-        LostDefensePoints: defense,
-        Message: message,
+        serviceId: taskId,
+        serviceStatus: status,
+        serviceLevelAgreementPoints: sla,
+        attackPoints: attack,
+        lostDefensePoints: defense,
+        message: message,
     }) {
         this.id = taskId + sla * 100 + attack * 10000 + defense * 1000000;
         this.taskId = taskId;

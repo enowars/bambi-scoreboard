@@ -2,7 +2,7 @@ import TeamTask from '@/models/teamTask';
 
 class Team {
     constructor(obj, taskModels) {
-        const { Name: name, TeamId: id } = obj;
+        const { name: name, teamId: id } = obj;
         this.name = name;
         this.id = id;
         this.ip = '10.0.0.' + id; // TODO: make this configurable
@@ -26,10 +26,10 @@ class Team {
             if (!taskIds.includes(task.id)) {
                 this.tasks.push(
                     new TeamTask({
-                        ServiceId: task.id,
-                        ServiceLevelAgreementPoints: 0,
-                        AttackPoints: 0,
-                        LostDefensePoints: 0,
+                        serviceId: task.id,
+                        serviceLevelAgreementPoints: 0,
+                        attackPoints: 0,
+                        lostDefensePoints: 0,
                         message: '',
                     })
                 );

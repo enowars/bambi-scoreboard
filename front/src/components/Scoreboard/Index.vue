@@ -159,7 +159,7 @@ export default {
         },
 
         getDnsSuffix: function() {
-            return this.config.DnsSuffix;
+            return this.config.dnsSuffix;
         }
     },
 
